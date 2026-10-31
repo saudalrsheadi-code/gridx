@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>دليل الاستخدام — GRID X</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;600&display=swap">
+<style>
+:root { --bg: #F3F6FA; --surface: #FFFFFF; --fg: #142033; --fg-2: #5B6B80; --line: #E1E7EF; --primary: #0B5CAD; --primary-50: #EAF2FB; --warn: #A65A06; --warn-50: #FFF6E8; --warn-line: #F1D7AE; color-scheme: light; }
+@media (prefers-color-scheme: dark) { :root { --bg: #0F1012; --surface: #17181B; --fg: #EDEEF0; --fg-2: #AEB3BA; --line: #2A2C31; --primary: #5AA2F0; --primary-50: rgba(90,162,240,.12); --warn: #F0A54A; --warn-50: rgba(240,165,74,.12); --warn-line: rgba(240,165,74,.3); color-scheme: dark; } }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--fg); font-family: 'IBM Plex Sans Arabic', 'Segoe UI', Tahoma, Arial, sans-serif; font-size: 15px; line-height: 1.8; }
+main { max-width: 760px; margin: 0 auto; padding: 24px 16px 40px; }
+h1 { font-size: 22px; margin: 0 0 4px; color: var(--primary); }
+h2 { font-size: 17px; margin: 28px 0 8px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; margin-top: 16px; }
+.warn { background: var(--warn-50); border: 1px solid var(--warn-line); color: var(--warn); border-radius: 10px; padding: 12px 14px; }
+ol, ul { padding-inline-start: 22px; margin: 6px 0; }
+a { color: var(--primary); }
+.back { display: inline-block; margin-top: 8px; font-weight: 600; }
+footer { border-top: 1px solid var(--line); text-align: center; padding: 16px; color: var(--fg-2); font-size: 13px; }
+footer b { color: var(--fg); font-weight: 600; }
+</style>
+</head>
+<body>
+<main>
+  <h1>دليل الاستخدام وحفظ البيانات</h1>
+  <div style="color:var(--fg-2)">منصة GRID X للإدارة والتشغيل والمحاسبة — نسخة عامة تبدأ فارغة</div>
+  <a class="back" href="./">← فتح المنصة</a>
+
+  <div class="card warn"><b>أين تُحفظ بياناتك؟</b> في متصفحك على جهازك فقط (التخزين المحلي للمتصفح). لا تُرسل إلى أي خادم، ولا يراها غيرك ممن يفتح الرابط نفسه: كل مستخدم يرى بيانات متصفحه هو فقط. الموقع نفسه لا يحتوي أي بيانات.</div>
+
+  <div class="card">
+    <h2 style="margin-top:0">ما يعنيه ذلك عملياً</h2>
+    <ul>
+      <li>البيانات لا تنتقل تلقائياً بين الأجهزة أو المتصفحات. الجوال والحاسوب لكل منهما بياناته.</li>
+      <li>مسح بيانات المتصفح، أو استخدام وضع التصفح الخاص، أو فقدان الجهاز، يعني فقدان البيانات ما لم تكن لديك نسخة احتياطية.</li>
+      <li>لا يوجد تسجيل دخول. اختيار الدور (المدير، المحاسب، الفني، الشريك) يغيّر الواجهة فقط وليس حماية أمنية. احمِ جهازك وحساب متصفحك.</li>
+      <li>لا تفتح المنصة في نافذتين في الوقت نفسه. إن حدث ذلك تتوقف النافذة الأقدم عن الحفظ وتطلب إعادة التحميل.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2 style="margin-top:0">النسخة الاحتياطية — ضرورية لكل مستخدم</h2>
+    <ol>
+      <li>من «الإعدادات ← البيانات: استيراد ونسخ احتياطي» اختر <b>«تصدير نسخة احتياطية»</b>. يُنزَّل ملف واحد يضم كل السجلات ومحتوى المرفقات (الصور وPDF).</li>
+      <li>احفظ الملف خارج الجهاز (مثل Google Drive) بعد كل جلسة إدخال.</li>
+      <li>لنقل بياناتك إلى جهاز آخر: افتح الموقع على الجهاز الجديد، ثم «استعادة من نسخة» بدور المدير، واكتب «استعادة» للتأكيد. <b>الاستعادة تستبدل كل البيانات الموجودة في ذلك المتصفح.</b></li>
+    </ol>
+  </div>
+
+  <div class="card">
+    <h2 style="margin-top:0">البدء</h2>
+    <ol>
+      <li>الإعدادات: اسم المؤسسة، والسنة المالية، وحالة التسجيل في ضريبة القيمة المضافة وتاريخ سريانها.</li>
+      <li>الحسابات النقدية والبنكية: أضف البنك والصندوق والعهدة برصيدها الافتتاحي الفعلي.</li>
+      <li>الشركاء ومساهماتهم (رأس مال، قرض، سلفة، مصروف دفعه الشريك، مساهمة عينية).</li>
+      <li>المشاريع والفنيون، ثم المستخلصات والتحصيلات والمصروفات اليومية.</li>
+      <li>العملية الخاطئة لا تُحذف: تُلغى بقيد عكسي بسبب مكتوب، ثم تُسجَّل الصحيحة.</li>
+    </ol>
+  </div>
+
+  <div class="card">
+    <h2 style="margin-top:0">حدود مهمة</h2>
+    <ul>
+      <li>المنصة نموذج تشغيلي محلي، وليست نظاماً متعدد المستخدمين ولا نظاماً معتمداً ضريبياً. لا تُصدر فواتير إلكترونية متوافقة مع «فاتورة» ولا تُعدّ الإقرار الضريبي.</li>
+      <li>المعالجة الضريبية تعمل وفق افتراضات تحتاج اعتماد محاسب مؤهل.</li>
+      <li>الموقع يحتاج اتصالاً بالإنترنت لتحميل مكتباته عند الفتح.</li>
+    </ul>
+  </div>
+</main>
+<footer><b>إعداد وتطوير م. سعود بن خضر الرشيدي</b></footer>
+</body>
+</html>
