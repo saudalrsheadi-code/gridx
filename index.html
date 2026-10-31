@@ -817,6 +817,23 @@ button, a, select, input, textarea, summary, label { touch-action: manipulation;
 .site-foot { border-top: 1px solid var(--line); padding: 14px 20px calc(20px + env(safe-area-inset-bottom, 0px)); text-align: center; font-size: var(--fs-meta); color: var(--fg-2); display: flex; flex-direction: column; gap: 4px; line-height: 1.6; }
 .site-credit { color: var(--fg); font-weight: 500; }
 .tech-wrap + .site-foot { background: var(--surface-3); }
+
+/* v21 — ui-ux-pro-max (31/10/2026): §1 حلقة تركيز مرئية لمبدّل الدور، §6 نص أساسي 16px على الجوال */
+.role-sel:focus-within { outline: 2px solid var(--primary); outline-offset: 2px; }
+@media (max-width: 620px) {
+  :root { --fs-body: 16px; --fs-sec: 14px; --fs-meta: 13px; }
+}
+@media (max-width: 620px) {
+  .period-row > .seg { overflow-x: visible; }
+  .period-row > .seg button { flex: 1 1 0; min-width: 0; justify-content: center; text-align: center; white-space: normal; line-height: 1.35; padding: 10px 6px; }
+}
+
+/* v22 — design-taste (31/10/2026): صفوف المؤشرات متساوية؛ العدد في الصف من app.js (--per) */
+.kpis[data-bal] > .kpi { flex: 1 1 calc(100% / var(--per, 4) - 1px); min-width: 0; }
+.queue[data-bal] > .q-item { flex: 1 1 calc(100% / var(--per, 4) - 1px); min-width: 0; }
+.tbl td span.num { white-space: nowrap; }
+.pcards[data-bal] { grid-template-columns: repeat(var(--per, 3), minmax(0, 1fr)); }
+.pcard .kv > :last-child { white-space: nowrap; flex: none; }
 </style>
 <script>try{document.documentElement.setAttribute('data-gx-theme',localStorage.getItem('gridx.theme')||'light')}catch(e){document.documentElement.setAttribute('data-gx-theme','light')}</script>
 <script>window.GX_CLEAN_START = true;</script>
@@ -6494,7 +6511,7 @@ function Extracts({ focus: focusIn }) {
         <//>
         <div className="dense"><${Table} rows=${filtered} onRow=${(r) => setDetail(r.id)} empty=${q || st || pr || kf ? html`<${FilteredEmpty} onClear=${clear} />` : html`<${Empty} title="لا توجد مستخلصات بعد" action=${can('edit') ? html`<button className="btn primary sm" onClick=${() => openModal('extract', {})}>إضافة مستخلص</button>` : null}>أضف أول مستخلص لمشروع قائم.<//>`} cols=${[
           { key: 'no', label: 'رقم المستخلص', sort: (r) => r.x.no, render: (r) => html`<span className="num strong">${r.x.no}</span>` },
-          { key: 'p', label: 'المشروع', sort: (r) => prName(s, r.x.projectId), render: (r) => { const p = s.projects.find((y) => y.id === r.x.projectId); return html`<span className="small num" title=${prName(s, r.x.projectId)}>${p ? p.code : '—'}</span>`; } },
+          { key: 'p', label: 'المشروع', sort: (r) => prName(s, r.x.projectId), render: (r) => { const p = s.projects.find((y) => y.id === r.x.projectId); return html`<span className="small num" style=${{ whiteSpace: 'nowrap' }} title=${prName(s, r.x.projectId)}>${p ? p.code : '—'}</span>`; } },
           { key: 'per', label: 'فترة العمل', sort: (r) => r.x.periodFrom || '', render: (r) => html`<div className="num small">${r.x.periodFrom ? sd(r.x.periodFrom) : '—'}</div><div className="num small muted">${r.x.periodTo ? sd(r.x.periodTo) : '—'}</div>` },
           { key: 'wv', label: 'قيمة الأعمال', n: true, sort: (r) => r.x.workValue, render: (r) => html`<${M} v=${r.x.workValue} />` },
           { key: 'total', label: 'صافي المستخلص', n: true, render: (r) => html`<${M} v=${r.total} />` },
@@ -6651,7 +6668,7 @@ function Expenses({ focus: focusIn0 }) {
           { key: 'paid', label: 'المدفوع', n: true, render: (r) => html`<${M} v=${r.paid} />` },
           { key: 'remaining', label: 'المتبقي', n: true, render: (r) => html`<${M} v=${r.remaining} cls=${r.remaining > 0 ? 'neg' : ''} />` },
           { key: 'pay', label: 'الحالة', render: (r) => html`<${PayBadge} st=${r.pay} />` },
-          { key: 'pr', label: 'المشروع', sort: (r) => r.e.projectId || '', render: (r) => html`<span className="small">${r.e.projectId ? (s.projects.find((p) => p.id === r.e.projectId) || {}).code : 'عام'}</span>` },
+          { key: 'pr', label: 'المشروع', sort: (r) => r.e.projectId || '', render: (r) => html`<span className="small num" style=${{ whiteSpace: 'nowrap' }}>${r.e.projectId ? (s.projects.find((p) => p.id === r.e.projectId) || {}).code : 'عام'}</span>` },
           { key: 'who', label: 'من دفع', sort: (r) => whoPaid(s, r), render: (r) => html`<span className="small">${whoPaid(s, r)}</span>` },
           { key: 'act', label: '', nosort: true, render: (r) => can('edit') && r.pay !== 'partner' && r.remaining > 0 && r.e.status === 'approved' ? html`<button className="btn sm" onClick=${(ev) => { ev.stopPropagation(); openModal('pay', { e: r.e, quick: 'pay' }); }}>تسجيل السداد</button>` : null }]} /></div>` : null}
       ${tab === 'pending' ? html`<${Table} rows=${pend} empty=${html`<${Empty} icon="check" title="لا توجد طلبات معلقة" >الطلبات الميدانية المرسلة من بوابة الفني تظهر هنا للمراجعة.<//>`} cols=${[
@@ -7754,7 +7771,7 @@ function Settings({ focus }) {
             <div className="kv small"><span>حصة الشركاء الرأسماليين مجتمعين</span><span className="num strong">${G.r2(100 - f.operatingPct)}%</span></div>
             <div className="small muted">تُقسم حصة الرأسماليين بينهم كالتالي (المجموع يجب أن يساوي 100%):</div>
             ${capPs.map((p) => html`<div key=${p.id} className="row" style=${{ flexWrap: 'nowrap' }}><span style=${{ flex: 1 }} className="small">${p.name}</span><input type="number" aria-label=${'نسبة ' + p.name} disabled=${!editSplit} value=${f.capitalSplit[p.id]} onInput=${(e) => up(['capitalSplit', p.id], Number(e.target.value))} style=${Object.assign({}, inp, { borderColor: Math.abs(splitTot - 100) > 0.001 ? 'var(--err)' : 'var(--line-2)' })} /><span className="small">% من حصتهم (فعلياً ${G.r2((100 - f.operatingPct) * (f.capitalSplit[p.id] || 0) / 100)}%)</span></div>`)}
-            <div className=${'small ' + (splitBad ? '' : 'muted')} style=${{ color: splitBad ? 'var(--err)' : '' }} data-split-check="1">المجموع ${splitTot}% ${Math.abs(splitTot - 100) > 0.001 ? '— يجب أن يساوي 100% قبل الحفظ' : '✓ صحيح'}</div>
+            <div className=${'small ' + (splitBad ? '' : 'muted')} style=${{ color: splitBad ? 'var(--err)' : '' }} data-split-check="1">المجموع ${splitTot}% ${Math.abs(splitTot - 100) > 0.001 ? '— يجب أن يساوي 100% قبل الحفظ' : '— صحيح'}</div>
           </div>
         <//>
         <${Panel} title=${'معاينة الأثر على الفترة القادمة (' + pFrom + ' إلى اليوم) بالنسب المعروضة'}>
@@ -8113,7 +8130,7 @@ function DataImport() {
           <${Field} label="المستلم" id="dx-r" hint="يحدد الأقسام والحقول التي يجوز للمستلم تعديلها"><${Sel} id="dx-r" value=${dxR} onChange=${(v) => { setDxR(v); setDxSec(DX.RECIPIENTS[v].sections.slice()); }} placeholder=${false} options=${Object.entries(DX.RECIPIENTS).map(([k, r]) => [k, r.label])} /><//>
           ${dxR === 'technician' ? html`<${Field} label="الفني" id="dx-t"><${Sel} id="dx-t" value=${dxTech} onChange=${setDxTech} placeholder=${false} options=${s.technicians.map((x) => [x.id, x.name])} /><//>` : null}
         </div>
-        <div className="field"><span className="flabel">الأقسام</span><div className="row" style=${{ gap: 14, flexWrap: 'wrap' }}>${DX.RECIPIENTS[dxR].sections.map((k) => html`<button key=${k} type="button" className=${'btn sm' + (dxSec.includes(k) ? '' : ' ghost')} aria-pressed=${dxSec.includes(k) ? 'true' : 'false'} onClick=${() => setDxSec((o) => o.includes(k) ? o.filter((x) => x !== k) : o.concat([k]))}>${dxSec.includes(k) ? '✓ ' : ''}${DX.BY[k].name}</button>`)}</div></div>
+        <div className="field"><span className="flabel">الأقسام</span><div className="row" style=${{ gap: 14, flexWrap: 'wrap' }}>${DX.RECIPIENTS[dxR].sections.map((k) => html`<button key=${k} type="button" className=${'btn sm' + (dxSec.includes(k) ? '' : ' ghost')} aria-pressed=${dxSec.includes(k) ? 'true' : 'false'} onClick=${() => setDxSec((o) => o.includes(k) ? o.filter((x) => x !== k) : o.concat([k]))}>${dxSec.includes(k) ? html`<${Icon} n="check" s=${14} />` : null}${DX.BY[k].name}</button>`)}</div></div>
         <div className="row"><button className="btn primary" onClick=${() => exportData(false)} disabled=${!xOk || !dxSec.length || (dxR === 'technician' && !dxTech)}><${Icon} n="download" s=${16} />تصدير Excel بالبيانات الحالية</button>
           <button className="btn" onClick=${() => exportData(true)} disabled=${!xOk || !dxSec.length || (dxR === 'technician' && !dxTech)}><${Icon} n="download" s=${16} />تصدير حزمة تبادل (Excel + المرفقات)</button></div>
         <div className="formula">كل سجل يُصدَّر بمعرّفه الثابت وبصمة نسخته، وتحفظ المنصة نسخة التصدير لكشف التعارض. الأعمدة «(للاطلاع)» محمية. الأسطر الجديدة تدخل «بانتظار الاعتماد» أو «مسودة»، ولا يُعتمد شيء مالياً بالاستيراد، ولا يُحذف سجل لغيابه عن الملف. أعد الملف من «رفع الملف» أدناه.</div>
@@ -8449,9 +8466,9 @@ function glChecks(s, d) {
   const cashBad = mm.filter((m) => m.a.type !== 'bank' && Math.abs(m.sys - m.stmt) > 0.01);
   const bk = glBankState(d, mm);
   out.push({ k: 'bank', title: 'مطابقة رصيد البنك مع الكشف في تاريخ البدء', status: !bk.diff ? 'ok' : bk.documented ? 'warn' : 'err',
-    detail: bk.rows.map((r) => r.name + ': المنصة ' + money(r.sys) + ' | الكشف ' + money(r.stmt) + (r.diff ? ' — الفرق ' + money(r.diff) : ' ✓')).join(' | ') +
+    detail: bk.rows.map((r) => r.name + ': المنصة ' + money(r.sys) + ' | الكشف ' + money(r.stmt) + (r.diff ? ' — الفرق ' + money(r.diff) : ' — مطابق')).join(' | ') +
       (!bk.diff ? '' : bk.documented ? ' | فرق موثق: ' + glDiffText(d.bankDiff) + (bk.big ? ' (يتجاوز الحد — بموافقة المدير العام)' : '') : '. صحّح الرصيد في خطوة «الأرصدة الافتتاحية» (هل يشمل الافتتاحي مساهمات أو مصروفات أدخلتها هنا أيضاً؟) أو وثّق سبب الفرق في خطوة «تأكيد البدء».') });
-  add('مطابقة الصندوق والعهدة مع العدّ الفعلي', cashBad.length ? 'err' : 'ok', mm.filter((m) => m.a.type !== 'bank').map((m) => m.a.name + ': المنصة ' + money(m.sys) + ' | العدّ ' + money(m.stmt) + (Math.abs(m.sys - m.stmt) > 0.01 ? ' ✗' : ' ✓')).join(' | ') || 'لا يوجد صندوق أو عهدة.');
+  add('مطابقة الصندوق والعهدة مع العدّ الفعلي', cashBad.length ? 'err' : 'ok', mm.filter((m) => m.a.type !== 'bank').map((m) => m.a.name + ': المنصة ' + money(m.sys) + ' | العدّ ' + money(m.stmt) + (Math.abs(m.sys - m.stmt) > 0.01 ? ' — غير مطابق' : ' — مطابق')).join(' | ') || 'لا يوجد صندوق أو عهدة.');
   const pe = d.expenses.filter((x) => x.payer !== 'company');
   if (pe.length) add('مصروفات دفعها الشركاء', 'ok', pe.length + ' مصروف، أُثبت كل منها مرة واحدة ونشأ مستحق للشريك دون خصم من نقدية المؤسسة.');
   if (d.capital.some((c) => c.kind === 'in_kind')) add('المساهمات العينية', 'warn', 'سُجّلت بحقوق الملكية بقيمتها المقدّرة ولا تدخل النقد. راجع التقييم مع محاسب.');
@@ -8603,8 +8620,8 @@ function GoLiveWizard({ onClose }) {
             <${Field} label="حصة الشريك التشغيلي من الأرباح %" id="gl-op"><input id="gl-op" type="number" min="0" max="100" value=${d.opPct} onInput=${(e) => { const v = e.target.value; upd((n) => { n.opPct = v; n.ratiosOk = false; }); }} /><//>
             <div className="field"><span className="flabel">حصة الشركاء الرأسماليين مجتمعين</span><div className="calc-box num strong">${G.r2(100 - (glNum(d.opPct) || 0))}%</div></div>
           </div>
-          <div className="calc-box"><div className="kv"><span>التشغيلي + الرأسماليون</span><span><span className="num">${glNum(d.opPct) || 0}%</span> + <span className="num">${G.r2(100 - (glNum(d.opPct) || 0))}%</span> = <span className="num">100%</span> ✓</span></div>
-            <div className=${'kv' + (Math.abs(tot - 100) > 0.001 ? ' tot' : '')}><span>مجموع نسب الرأسماليين داخل حصتهم</span><span style=${{ color: Math.abs(tot - 100) > 0.001 ? 'var(--err)' : '' }} data-gl-split="1"><span className="num">${tot}%</span> ${Math.abs(tot - 100) > 0.001 ? html`— يجب أن يساوي <span className="num">100%</span>` : '✓'}</span></div></div>
+          <div className="calc-box"><div className="kv"><span>التشغيلي + الرأسماليون</span><span><span className="num">${glNum(d.opPct) || 0}%</span> + <span className="num">${G.r2(100 - (glNum(d.opPct) || 0))}%</span> = <span className="num">100%</span></span></div>
+            <div className=${'kv' + (Math.abs(tot - 100) > 0.001 ? ' tot' : '')}><span>مجموع نسب الرأسماليين داخل حصتهم</span><span style=${{ color: Math.abs(tot - 100) > 0.001 ? 'var(--err)' : '' }} data-gl-split="1"><span className="num">${tot}%</span> ${Math.abs(tot - 100) > 0.001 ? html`— يجب أن يساوي <span className="num">100%</span>` : '— صحيح'}</span></div></div>
           <label className="check"><input type="checkbox" id="gl-rok" checked=${!!d.ratiosOk} onChange=${(e) => { const v = e.target.checked; upd((n) => { n.ratiosOk = v; }); }} /><span>أؤكد أن هذه هي النسب الفعلية المعتمدة بين الشركاء.</span></label>
         </div>`;
       }
@@ -8707,7 +8724,7 @@ function GoLiveWizard({ onClose }) {
             ${bankCmp.rows.length > 1 ? html`<div className="small strong" style=${{ marginBottom: 4 }}>${r.name}</div>` : null}
             <div className="kv"><span>رصيد البنك المدخل في المنصة</span><${M} v=${r.sys} /></div>
             <div className="kv"><span>رصيد البنك في كشف البنك${r.ref ? html` (<bdi dir="ltr">${r.ref}</bdi>)` : ''}</span><${M} v=${r.stmt} /></div>
-            <div className="kv tot"><span>فرق المطابقة</span>${r.diff ? html`<span style=${{ color: 'var(--err)' }}><${M} v=${r.diff} /></span>` : html`<span className="small" style=${{ color: 'var(--ok)' }}>لا يوجد فرق ✓</span>`}</div>
+            <div className="kv tot"><span>فرق المطابقة</span>${r.diff ? html`<span style=${{ color: 'var(--err)' }}><${M} v=${r.diff} /></span>` : html`<span className="small" style=${{ color: 'var(--ok)' }}>لا يوجد فرق</span>`}</div>
             ${r.diff ? html`<div className="kv"><span className="small muted">حد الفرق دون موافقة إضافية (5,000 أو 5% من الكشف، أيهما أكبر)</span><span className="small"><bdi dir="ltr" className="num">${money(r.limit)}</bdi>${r.big ? html` — <b style=${{ color: 'var(--err)' }}>متجاوز</b>` : ''}</span></div>` : null}
           </div>`)}
           <div className="note">رصيد المنصة = الرصيد الافتتاحي + المساهمات المودعة − مصروفات التأسيس المدفوعة من الحساب حتى تاريخ البدء.</div>
@@ -8817,7 +8834,7 @@ function GlBankTaskModal({ onClose }) {
         ${sc.rows.map((x) => html`<div key=${x.r.accountId} className="calc-box" data-glt=${x.ok ? 'ok' : 'diff'}>
           <div className="kv"><span>رصيد ${x.r.name} في المنصة بتاريخ ${f.date ? sd(f.date) : '—'}</span><${M} v=${isNaN(x.sys) ? 0 : x.sys} /></div>
           <div className="kv"><span>حسب الكشف</span>${isNaN(x.stmt) ? html`<span className="small muted">—</span>` : html`<${M} v=${x.stmt} />`}</div>
-          <div className="kv tot"><span>الفرق</span>${isNaN(x.stmt) ? html`<span className="small muted">—</span>` : x.ok ? html`<span className="small" style=${{ color: 'var(--ok)' }}>لا يوجد فرق ✓</span>` : html`<span style=${{ color: 'var(--err)' }}><${M} v=${x.diff} /></span>`}</div>
+          <div className="kv tot"><span>الفرق</span>${isNaN(x.stmt) ? html`<span className="small muted">—</span>` : x.ok ? html`<span className="small" style=${{ color: 'var(--ok)' }}>لا يوجد فرق</span>` : html`<span style=${{ color: 'var(--err)' }}><${M} v=${x.diff} /></span>`}</div>
         </div>`)}
       </div>` : html`<div className="stack" style=${{ gap: 8 }}>
         ${role !== 'manager' ? html`<${Callout} kind="warn">توثيق سبب استمرار الفرق من صلاحية المدير العام.<//>` : null}
@@ -9199,6 +9216,8 @@ function App() {
   // عند الفتح: تُكتب البيانات التجريبية الأولى أو البيانات بعد الترقية. بعدها لا يُكتب إلا عبر setState
   useEffect(() => { if (!init.raw || init.migrated || init.overwriteOk) { const r = persist(state); if (!r.ok) { setSaved({ ok: false, at: null }); if (!init.blocked) setSaveErr({ msg: r.err }); } } }, []);
   useEffect(() => { try { localStorage.setItem('gridx.role', role); localStorage.setItem('gridx.page', nav.page); } catch (e) {} }, [role, nav.page]);
+  // ui-ux-pro-max §9: في الصفوف القابلة للتمرير أفقياً (الجوال) يبقى العنصر المحدد ظاهراً دون تحريك الصفحة نفسها
+  useEffect(() => { const t = setTimeout(() => { try { document.querySelectorAll('.subnav, .tabs, .seg').forEach((el) => { if (el.scrollWidth <= el.clientWidth + 1) return; const on = el.querySelector('.on, [aria-current="page"], [aria-selected="true"]'); if (!on) return; const R = el.getBoundingClientRect(), o = on.getBoundingClientRect(); const d = o.left < R.left ? o.left - R.left - 8 : (o.right > R.right ? o.right - R.right + 8 : 0); if (d) el.scrollLeft += d; }); } catch (e) {} }, 60); return () => clearTimeout(t); }, [role, nav.page, nav.focus, nav.n]);
   const allowed = navFor(role);
   const page = routeFor(role).some((n) => n[0] === nav.page) ? nav.page : 'dashboard';
   const can = (k) => !!(PERMS[role] || {})[k];
@@ -9300,6 +9319,13 @@ function App() {
   <//>`;
 }
 ReactDOM.createRoot(document.getElementById('root')).render(html`<${App} />`);
+// design-taste (app §13 ragged-row): عدد المؤشرات في الصف يُحسب من عددها وعرض الحاوية فتتساوى الصفوف (6 ← 3+3 أو 6 في صف) بدل 5+1
+(function balanceRows() {
+  const MIN = { kpis: 180, queue: 150, pcards: 250 };
+  const run = () => { document.querySelectorAll('.kpis:not(.rk-grid), .queue, .pcards').forEach((el) => { const kind = el.classList.contains('queue') ? 'queue' : el.classList.contains('pcards') ? 'pcards' : 'kpis'; const items = Array.from(el.children).filter((x) => x.nodeType === 1 && getComputedStyle(x).display !== 'none'); const n = items.length; const w = el.clientWidth; if (!n || !w) return; const k = Math.max(1, Math.min(n, Math.floor((w + 1) / MIN[kind]))); const per = Math.ceil(n / Math.ceil(n / k)); if (el.style.getPropertyValue('--per') !== String(per)) el.style.setProperty('--per', String(per)); el.setAttribute('data-bal', ''); }); };
+  let q = 0; const sched = () => { if (q) return; q = requestAnimationFrame(() => { q = 0; run(); }); };
+  try { new MutationObserver(sched).observe(document.getElementById('root'), { childList: true, subtree: true }); window.addEventListener('resize', sched); sched(); } catch (e) {}
+})();
 </script>
 
 </body>
