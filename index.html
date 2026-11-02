@@ -834,6 +834,172 @@ button, a, select, input, textarea, summary, label { touch-action: manipulation;
 .tbl td span.num { white-space: nowrap; }
 .pcards[data-bal] { grid-template-columns: repeat(var(--per, 3), minmax(0, 1fr)); }
 .pcard .kv > :last-child { white-space: nowrap; flex: none; }
+
+/* ===================================================================================
+   v23 — Fluent 2 داخل هوية GRID X (2 نوفمبر 2026)
+   القيم من حزمة Microsoft الرسمية @fluentui/tokens (webLightTheme / webDarkTheme)
+   ومكونات @fluentui/react-button/input/tabs/dialog/card. تبقى: الأزرق #0B5CAD، السماوي، الشعار، IBM Plex Sans Arabic.
+   =================================================================================== */
+:root {
+  /* المحايدات: colorNeutralBackground3/1/2/4، Foreground1/3، Stroke2/1 */
+  --bg: #F5F5F5; --surface: #FFFFFF; --surface-2: #FAFAFA; --surface-3: #F0F0F0;
+  --fg: #242424; --fg-2: #616161; --fg-3: #616161;
+  --line: #E0E0E0; --line-2: #D1D1D1; --stroke-acc: #616161;
+  --hover: #F5F5F5; --pressed: #E0E0E0; --selected: #EBEBEB;
+  --primary-hover: #094E93; --primary-pressed: #073A6E;
+  /* الزوايا: borderRadiusMedium للعناصر، XLarge للبطاقات والنوافذ */
+  --r: 4px; --r-lg: 8px;
+  /* الارتفاع: shadow16 للقوائم والإشعارات، shadow64 للنوافذ */
+  --sh-pop: 0 0 2px rgba(0, 0, 0, .12), 0 8px 16px rgba(0, 0, 0, .14);
+  --sh-dialog: 0 0 8px rgba(0, 0, 0, .12), 0 32px 64px rgba(0, 0, 0, .14);
+  --overlay: rgba(0, 0, 0, .4);
+  /* الحركة: durationFaster / durationNormal، curveEasyEase و curveDecelerateMid */
+  --d-fast: 100ms; --d-base: 200ms; --ease-out: cubic-bezier(0, 0, 0, 1); --ease: cubic-bezier(.33, 0, .67, 1);
+  --topbar: rgba(255, 255, 255, .96);
+}
+@media (prefers-color-scheme: dark) {
+  :root[data-gx-theme="auto"]:not([data-theme="light"]) {
+    --bg: #1F1F1F; --surface: #292929; --surface-2: #242424; --surface-3: #333333;
+    --fg: #FFFFFF; --fg-2: #ADADAD; --fg-3: #ADADAD; --line: #3D3D3D; --line-2: #666666; --stroke-acc: #ADADAD;
+    --hover: #3D3D3D; --pressed: #1F1F1F; --selected: #383838; --primary-hover: #7DB6F4; --primary-pressed: #3F8CDB;
+    --sh-pop: 0 0 2px rgba(0, 0, 0, .24), 0 8px 16px rgba(0, 0, 0, .28); --sh-dialog: 0 0 8px rgba(0, 0, 0, .24), 0 32px 64px rgba(0, 0, 0, .28);
+    --overlay: rgba(0, 0, 0, .5); --topbar: rgba(41, 41, 41, .96); --edge: inset 0 0 0 0 transparent;
+  }
+}
+:root[data-gx-theme="dark"], :root[data-gx-theme="auto"][data-theme="dark"] {
+  --bg: #1F1F1F; --surface: #292929; --surface-2: #242424; --surface-3: #333333;
+  --fg: #FFFFFF; --fg-2: #ADADAD; --fg-3: #ADADAD; --line: #3D3D3D; --line-2: #666666; --stroke-acc: #ADADAD;
+  --hover: #3D3D3D; --pressed: #1F1F1F; --selected: #383838; --primary-hover: #7DB6F4; --primary-pressed: #3F8CDB;
+  --sh-pop: 0 0 2px rgba(0, 0, 0, .24), 0 8px 16px rgba(0, 0, 0, .28); --sh-dialog: 0 0 8px rgba(0, 0, 0, .24), 0 32px 64px rgba(0, 0, 0, .28);
+  --overlay: rgba(0, 0, 0, .5); --topbar: rgba(41, 41, 41, .96); --edge: inset 0 0 0 0 transparent;
+}
+
+/* الأزرار (Fluent Button، الحجم المتوسط): 32px، زاوية 4px، 600، حالات hover/pressed محايدة */
+.btn { border-radius: var(--r); min-height: 32px; padding: 5px 12px; font-weight: 600; border-color: var(--line-2); transition: background-color var(--d-fast) var(--ease), border-color var(--d-fast) var(--ease), color var(--d-fast) var(--ease); }
+.btn:hover { background: var(--hover); border-color: var(--line-2); }
+.btn:active { background: var(--pressed); }
+.btn.primary { background: var(--primary); border-color: transparent; color: var(--on-primary); }
+.btn.primary:hover { background: var(--primary-hover); border-color: transparent; color: var(--on-primary); }
+.btn.primary:active { background: var(--primary-pressed); }
+.btn:disabled, .btn[disabled] { background: var(--surface-3); border-color: var(--line); color: var(--fg-2); }
+
+/* الحقول (Fluent Input): 32px، حد 1px وحد سفلي أغمق، والتركيز خط سفلي 2px بلون العلامة */
+.field input, .field select, .field textarea, .filters input, .filters select, .panel-h select, .qs input {
+  border-radius: var(--r); border: 1px solid var(--line-2); border-bottom-color: var(--stroke-acc); background: var(--surface);
+  transition: border-color var(--d-fast) var(--ease), box-shadow var(--d-fast) var(--ease);
+}
+.field input, .field select { min-height: 32px; }
+.field input:hover, .field select:hover, .field textarea:hover, .filters input:hover, .filters select:hover { border-color: #C7C7C7; border-bottom-color: var(--fg); }
+.field input:focus, .field select:focus, .field textarea:focus, .filters input:focus, .filters select:focus, .panel-h select:focus, .qs input:focus {
+  outline: none; border-color: var(--line-2); border-bottom-color: var(--primary); box-shadow: inset 0 -1px 0 var(--primary);
+}
+
+/* البطاقات واللوحات (Fluent Card بمظهر outline): حد Stroke2 بلا ظل، زاوية 8px */
+.panel, .kpis, .pcard { border-radius: var(--r-lg); }
+.panel { border-color: var(--line); box-shadow: none; }
+
+/* التبويبات (Fluent Tab): مؤشر 3px بزوايا دائرية تحت المحدد */
+.tabs button { position: relative; border-bottom-color: transparent !important; transition: color var(--d-fast) var(--ease); }
+.tabs button:hover { color: var(--fg); }
+.tabs button.on { color: var(--fg); }
+.tabs button.on::after { content: ""; position: absolute; inset-inline: 12px; bottom: 0; height: 3px; border-radius: 10000px; background: var(--primary); }
+
+/* القائمة الجانبية (Fluent Nav): خلفية محددة محايدة، والنص بلون العلامة */
+.nav button { border-radius: var(--r); transition: background-color var(--d-fast) var(--ease); }
+.nav button:hover { background: var(--hover); }
+.nav button.on { background: var(--selected); color: var(--fg); }
+
+/* النوافذ (Fluent Dialog): زاوية 8px، ظل shadow64؛ القوائم والإشعارات shadow16 */
+.modal { border-radius: var(--r-lg); box-shadow: var(--sh-dialog); border-color: transparent; }
+.toast { border-radius: var(--r); }
+
+/* صفوف الجداول: hover محايد */
+.tbl tbody tr { transition: background-color var(--d-fast) var(--ease); }
+
+/* اللمس على الجوال يبقى 44px (قاعدة ui-ux-pro-max §2) */
+@media (max-width: 620px) {
+  .btn { min-height: 44px; }
+  .field input, .field select, .field textarea, .filters input, .filters select { min-height: 44px; }
+}
+/* إصلاح: «ر.س» كانت تتراكب على الأرقام — الحقل LTR والوحدة يساراً، فالمسافة المحجوزة يساراً */
+.inp-money input { padding-inline-end: 10px; padding-left: 44px; padding-right: 10px; }
+.inp-money span { inset-inline-end: auto; left: 12px; right: auto; pointer-events: none; }
+
+/* ===================================================================================
+   v24 — شريط تنقل علوي ومركز خدمات (مستلهم من منصة الإرشاد التدريبي) — 2 نوفمبر 2026
+   الكمبيوتر فقط (≥901px): القائمة الجانبية نفسها (العناصر نفسها) تُعرض شريطاً علوياً:
+   الشعار يميناً، المجموعات أفقياً بخط سفلي للمحددة، وصفحات المجموعة صفّ تبويبات تحته.
+   الجوال: القائمة المنسدلة كما هي.
+   =================================================================================== */
+@media (min-width: 901px) {
+  .app { flex-direction: column; }
+  .side, .side.collapsed {
+    width: auto; flex: none; height: auto; position: sticky; top: 0; z-index: 30;
+    display: grid; grid-template-columns: auto repeat(7, max-content) 1fr; grid-template-rows: 64px auto; align-items: stretch;
+    border-inline-end: 0; border-bottom: 1px solid var(--line); background: var(--surface);
+    padding-inline: max(16px, calc((100% - 1480px) / 2 + 20px));
+  }
+  .side .brand { grid-row: 1; border-bottom: 0; padding: 0 0 0 28px; min-height: 0; margin-inline-end: 8px; border-inline-end: 1px solid var(--line); }
+  .side.collapsed .brand-txt { display: flex; }
+  .side .nav, .side .nav-grp { display: contents; }
+  .side .side-foot { display: none; }
+  .side .nav .grp {
+    grid-row: 1; align-self: stretch; min-height: 0; border-radius: 0; padding: 0 14px; gap: 8px;
+    color: var(--fg-2); font-weight: 500; background: transparent !important; justify-content: center;
+  }
+  .side.collapsed .nav-l, .side.collapsed .nav-badge { display: inline; }
+  .side .nav .grp:hover { color: var(--fg); background: var(--hover) !important; }
+  .side .nav .grp.on { color: var(--primary); font-weight: 600; }
+  .side .nav .grp.on::after, .side .nav-grp.open .grp.on::after {
+    display: block; content: ""; position: absolute; inset-inline: 10px; bottom: 0; top: auto; width: auto; height: 3px;
+    border-radius: 3px 3px 0 0; background: var(--primary); transform: none;
+  }
+  .side .nav-sub {
+    grid-row: 2; grid-column: 1 / -1; flex-direction: row; gap: 4px; margin: 0; padding: 0;
+    border-top: 1px solid var(--line); overflow-x: auto; scrollbar-width: none;
+  }
+  .side .nav-sub::before { display: none; }
+  .side .nav .nav-sub button {
+    min-height: 44px; padding: 0 14px; border-radius: 0; font-size: var(--fs-body); color: var(--fg-2); background: transparent; white-space: nowrap;
+  }
+  .side .nav .nav-sub button:hover { color: var(--fg); background: var(--hover); }
+  .side .nav .nav-sub button.on { color: var(--fg); font-weight: 600; background: transparent; }
+  .side .nav .nav-sub button.on::after {
+    display: block; content: ""; position: absolute; inset-inline: 12px; bottom: 0; top: auto; width: auto; height: 2px;
+    border-radius: 2px; background: var(--primary); transform: none;
+  }
+  .side .nav button:focus-visible { outline: 2px solid var(--primary); outline-offset: -2px; }
+  .top { position: static; }
+  .top, .demo-bar { padding-inline: max(16px, calc((100% - 1480px) / 2 + 20px)); }
+  .content { margin-inline: auto; }
+}
+
+/* مركز الخدمات: مجموعات بأعمدة، لكل مجموعة رأس ملوّن خفيف وعدد خدماتها، وكل خدمة سطر بأيقونة ووصف */
+.hub-wrap { display: flex; flex-direction: column; gap: 10px; }
+.hub-wrap > h2 { font-size: 18px; margin: 8px 0 0; }
+.hub-wrap > .hub-sub { color: var(--fg-2); font-size: var(--fs-sec); margin: 0; }
+.hub { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 360px), 1fr)); gap: 16px; align-items: start; }
+.hub-g { --hc: var(--primary); --ht: var(--primary-50); background: var(--surface); border: 1px solid var(--line); border-top: 3px solid var(--hc); border-radius: var(--r-lg); overflow: hidden; min-width: 0; }
+.hub-g.c2 { --hc: var(--cyan-ink); --ht: var(--cyan-50); }
+.hub-g.c3 { --hc: #3D5A80; --ht: #EEF2F7; }
+.hub-h { display: flex; align-items: center; gap: 12px; padding: 16px 18px; background: var(--ht); border-bottom: 1px solid var(--line); }
+.hub-h .hub-ic { color: var(--hc); display: grid; place-items: center; flex: none; }
+.hub-h h3 { margin: 0; font-size: 17px; font-weight: 700; color: var(--hc); line-height: 1.35; }
+.hub-h p { margin: 2px 0 0; font-size: var(--fs-sec); color: var(--fg-2); }
+.hub-h .hub-n { margin-inline-start: auto; align-self: flex-start; font-size: var(--fs-meta); color: var(--fg-2); white-space: nowrap; }
+.hub-list { display: grid; gap: 10px; padding: 12px; }
+.hub-i { all: unset; box-sizing: border-box; display: flex; align-items: center; gap: 14px; padding: 14px 16px; min-height: 72px; border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--surface); cursor: pointer; transition: border-color var(--d-fast) var(--ease, ease), background-color var(--d-fast) var(--ease, ease); }
+.hub-i:hover { border-color: var(--line-2); background: var(--surface-2); }
+.hub-i:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+.hub-i .hub-iic { width: 40px; height: 40px; border-radius: var(--r-lg); background: var(--ht); color: var(--hc); display: grid; place-items: center; flex: none; }
+.hub-i .hub-t { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.hub-i .hub-t b { font-size: 15px; font-weight: 600; color: var(--fg); }
+.hub-i .hub-t span { font-size: var(--fs-sec); color: var(--fg-2); line-height: 1.5; }
+.hub-i .hub-b { font-size: var(--fs-meta); font-weight: 600; background: var(--warn-50); color: var(--warn); border: 1px solid var(--warn-line); border-radius: 999px; padding: 1px 9px; white-space: nowrap; }
+.hub-i .hub-chev { color: var(--fg-2); flex: none; display: grid; }
+:root[data-gx-theme="dark"] .hub-g.c3 { --hc: #9DB4D3; --ht: rgba(157, 180, 211, .1); }
+@media (prefers-color-scheme: dark) { :root[data-gx-theme="auto"]:not([data-theme="light"]) .hub-g.c3 { --hc: #9DB4D3; --ht: rgba(157, 180, 211, .1); } }
+@media (min-width: 901px) and (max-width: 1180px) { .side .brand-txt span:not(.wordmark) { display: none; } .side .nav .grp { padding: 0 10px; } }
 </style>
 <script>try{document.documentElement.setAttribute('data-gx-theme',localStorage.getItem('gridx.theme')||'light')}catch(e){document.documentElement.setAttribute('data-gx-theme','light')}</script>
 <script>window.GX_CLEAN_START = true;</script>
@@ -6111,6 +6277,57 @@ function LiveStamp({ s }) {
 }
 
 /* وضع صاحب العمل: مؤشرات مبسطة بلغة واضحة، وكل رقم قابل للنقر لعرض مصدره */
+
+// مركز الخدمات (مستلهم من منصة الإرشاد التدريبي): كل صفحات المنصة مجمّعة بأوصافها، والأعداد على الطوابير التي تنتظر إجراءً فقط
+const MA = ['manager', 'accountant'], MAP = ['manager', 'accountant', 'partner'];
+const HUB = [
+  ['ops', 'التشغيل', 'المشاريع والأعطال والفريق والمركبة', 'projects', '', [
+    ['projects', 'المشاريع والمهام', 'أوامر العمل وحالة التنفيذ', 'projects', MA],
+    ['faults', 'الأعطال والطوارئ', 'البلاغات الميدانية ومتابعة الإصلاح', 'zap', MA],
+    ['technicians', 'الفنيون والموارد البشرية', 'الفريق والرواتب والدوام', 'technicians', MA],
+    ['vehicles', 'المركبة والصيانة', 'الوقود والصيانة والوثائق', 'vehicles', MA]]],
+  ['money', 'المال اليومي', 'المستخلصات والمصروفات والحسابات', 'wallet', 'c2', [
+    ['extracts', 'المستخلصات والتحصيلات', 'ما فُوتر وما حُصّل وما بقي', 'extracts', MA, 'ext'],
+    ['expenses', 'المصروفات والفواتير', 'الفواتير والسداد واعتماد طلبات الفنيين', 'expenses', MA, 'exp'],
+    ['accounts', 'الحسابات النقدية والبنكية', 'البنك والصندوق والعهد وحركاتها', 'accounts', MA]]],
+  ['partnersG', 'الشركاء والالتزامات', 'رأس المال والقروض والأرباح', 'partners', 'c3', [
+    ['partners', 'الشركاء والمساهمات', 'ملف كل شريك وكشف حسابه', 'partners', MAP],
+    ['loans', 'القروض والسلف', 'قروض الشركاء والسلف وسدادها', 'transfer', MAP],
+    ['liabilities', 'الالتزامات والمستحقات', 'ما على المؤسسة ومواعيد استحقاقه', 'liabilities', MAP],
+    ['distributions', 'الأرباح والتوزيعات', 'الربح القابل للتوزيع وتوزيعه', 'distributions', MAP]]],
+  ['reportsG', 'التقارير', 'القوائم المالية والمراجعة', 'reports', '', [
+    ['reports', 'التقارير الأساسية', 'الأرباح والتدفقات والميزانية', 'reports', MAP],
+    ['review', 'مراجعة وفحص', 'مطابقة الأرصدة وفحص القيود', 'shield', MA],
+    ['tools', 'أدوات متقدمة', 'ميزان المراجعة وسجل العمليات', 'list', MA]]],
+  ['settingsG', 'الإعدادات والبيانات', 'إعدادات المؤسسة والنسخ الاحتياطي', 'settings', 'c2', [
+    ['settings', 'الإعدادات', 'المؤسسة والسنة المالية والضريبة', 'settings', ['manager']],
+    ['data', 'استيراد ونسخ احتياطي', 'ملفات Excel والنسخ الاحتياطية', 'download', MA],
+    ['alerts', 'كل التنبيهات', 'الاستحقاقات والمخاطر التي تحتاج متابعة', 'alerts', MA, 'alr']]]
+];
+const nServ = (n) => n === 1 ? 'خدمة واحدة' : n === 2 ? 'خدمتان' : n <= 10 ? n + ' خدمات' : n + ' خدمة';
+function ServicesHub() {
+  const { state: s, go, role } = useApp();
+  const counts = useMemo(() => ({
+    exp: [s.expenses.filter((e) => e.status === 'pending').length, 'بانتظار الاعتماد'],
+    ext: [s.extracts.filter((x) => x.status === 'submitted').length, 'بانتظار الاعتماد'],
+    alr: [uiAlerts(s).filter((a) => a.sev === 'danger' || a.sev === 'warning').length, 'تنبيه']
+  }), [s]);
+  const groups = HUB.map((g) => [g, g[5].filter((it) => it[4].includes(role))]).filter(([, items]) => items.length);
+  if (!groups.length) return null;
+  return html`<section className="hub-wrap" aria-labelledby="hub-title">
+    <h2 id="hub-title">الخدمات</h2>
+    <p className="hub-sub">كل أقسام المنصة في مكان واحد؛ الرقم البرتقالي عدد ما ينتظر إجراءً منك.</p>
+    <div className="hub">${groups.map(([[gk, gl, gd, gic, gc], items]) => html`<section key=${gk} className=${'hub-g ' + gc} aria-label=${gl}>
+      <div className="hub-h"><span className="hub-ic"><${Icon} n=${gic} s=${22} /></span><div><h3>${gl}</h3><p>${gd}</p></div><span className="hub-n">${nServ(items.length)}</span></div>
+      <div className="hub-list">${items.map(([k, l, d, ic, , ck]) => { const c = ck && counts[ck]; return html`<button key=${k} type="button" className="hub-i" onClick=${() => go(k)}>
+        <span className="hub-iic"><${Icon} n=${ic} s=${19} /></span>
+        <span className="hub-t"><b>${l}</b><span>${d}</span></span>
+        ${c && c[0] ? html`<span className="hub-b" aria-label=${c[0] + ' ' + c[1]}>${c[0]}</span>` : null}
+        <span className="hub-chev" aria-hidden="true"><${Icon} n="chevL" s=${16} /></span>
+      </button>`; })}</div>
+    </section>`)}</div>
+  </section>`;
+}
 function OwnerView({ d, from, to }) {
   const { state: s, go, can, role } = useApp();
   const ex = useMemo(() => ({ afterNear: G.explain(s, 'afterNear', from, to), payables: G.explain(s, 'payables', from, to), dist: G.explain(s, 'distributable', from, to) }), [s, from, to]);
@@ -6134,6 +6351,7 @@ function OwnerView({ d, from, to }) {
     <${Panel} title="تنبيهات عاجلة" sub=${urgentAll.length ? (urgentAll.length > 5 ? 'أهم 5 من ' + urgentAll.length : urgentAll.length + ' تنبيه') : 'لا توجد تنبيهات عاجلة'} tight actions=${staff ? html`<button className="btn ghost sm" onClick=${() => go('alerts')}>كل التنبيهات</button>` : null}>
       ${urgent.length ? html`<div className="alist">${urgent.map((a) => html`<div key=${a.id} className="aitem"><span className=${'sev ' + a.sev}></span><div style=${{ flex: 1, minWidth: 0 }}><div className="t">${a.title}</div><div className="d">${a.detail}</div></div>${staff ? html`<button className="btn ghost sm" onClick=${() => go(a.page)}>فتح</button>` : null}</div>`)}</div>` : html`<${Empty} icon="check" title="لا توجد تنبيهات عاجلة الآن" />`}
     <//>
+    <${ServicesHub} />
   <//>`;
 }
 
