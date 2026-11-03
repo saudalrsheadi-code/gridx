@@ -6888,7 +6888,12 @@ function Expenses({ focus: focusIn0 }) {
           { key: 'pay', label: 'الحالة', render: (r) => html`<${PayBadge} st=${r.pay} />` },
           { key: 'pr', label: 'المشروع', sort: (r) => r.e.projectId || '', render: (r) => html`<span className="small num" style=${{ whiteSpace: 'nowrap' }}>${r.e.projectId ? (s.projects.find((p) => p.id === r.e.projectId) || {}).code : 'عام'}</span>` },
           { key: 'who', label: 'من دفع', sort: (r) => whoPaid(s, r), render: (r) => html`<span className="small">${whoPaid(s, r)}</span>` },
-          { key: 'act', label: '', nosort: true, render: (r) => can('edit') && r.pay !== 'partner' && r.remaining > 0 && r.e.status === 'approved' ? html`<button className="btn sm" onClick=${(ev) => { ev.stopPropagation(); openModal('pay', { e: r.e, quick: 'pay' }); }}>تسجيل السداد</button>` : null }]} /></div>` : null}
+          { key: 'act', label: '', nosort: true, render: (r) => {
+            const stop = (fn) => (ev) => { ev.stopPropagation(); fn(); };
+            if (can('edit') && r.pay !== 'partner' && r.remaining > 0 && r.e.status === 'approved') return html`<button className="btn sm" onClick=${stop(() => openModal('pay', { e: r.e, quick: 'pay' }))}>تسجيل السداد</button>`;
+            if (r.pay === 'paid' && r.payments.length === 1) return html`<button className="btn ghost sm" aria-label=${'سند صرف ' + r.e.no} onClick=${stop(() => openDoc(Docs.payment(s, r.payments[0])))}><${Icon} n="doc" s=${15} />سند الصرف</button>`;
+            if (r.e.status === 'approved') return html`<button className="btn ghost sm" aria-label=${'خيارات ' + r.e.no} onClick=${stop(() => setDetail(r.id))}>${r.pay === 'paid' ? 'المدفوعات (' + r.payments.length + ')' : 'التفاصيل'}</button>`;
+            return null; } }]} /></div>` : null}
       ${tab === 'pending' ? html`<${Table} rows=${pend} empty=${html`<${Empty} icon="check" title="لا توجد طلبات معلقة" >الطلبات الميدانية المرسلة من بوابة الفني تظهر هنا للمراجعة.<//>`} cols=${[
           { key: 'no', label: 'الطلب', render: (r) => html`<span className="num">${r.e.no}</span>` },
           { key: 'date', label: 'التاريخ', render: (r) => html`<span className="num">${sd(r.e.date)}</span>` },
@@ -6943,7 +6948,8 @@ function ExpenseDetail({ id, onClose }) {
         ${e.receipt ? html`<div style=${{ marginTop: 8 }}><${AttList} rec=${e} /></div>` : html`<div className="small muted" style=${{ marginTop: 6 }}>لم يُرفق مستند.</div>`}
       </div>
     </div>
-    ${c.payments.length ? html`<h3 className="sec-t">المدفوعات</h3><div className="panel"><${Table} rows=${c.payments} cols=${[{ key: 'no', label: 'سند الصرف' }, { key: 'date', label: 'التاريخ', render: (r) => html`<span className="num">${sd(r.date)}</span>` }, { key: 'acc', label: 'الحساب', render: (r) => accName(s, r.accountId) }, { key: 'method', label: 'الطريقة' }, { key: 'amount', label: 'المبلغ', n: true, render: (r) => html`<${M} v=${r.amount} />` }, { key: 'd', label: '', nosort: true, render: (r) => html`<button className="btn ghost sm" onClick=${() => openDoc(Docs.payment(s, r))}>سند صرف</button>` }]} /></div>` : null}
+    ${c.payments.length ? html`<h3 className="sec-t">المدفوعات</h3><div className="panel"><${Table} rows=${c.payments} cols=${[{ key: 'no', label: 'سند الصرف' }, { key: 'date', label: 'التاريخ', render: (r) => html`<span className="num">${sd(r.date)}</span>` }, { key: 'acc', label: 'الحساب', render: (r) => accName(s, r.accountId) }, { key: 'method', label: 'الطريقة' }, { key: 'amount', label: 'المبلغ', n: true, render: (r) => html`<${M} v=${r.amount} />` }, { key: 'd', label: '', nosort: true, render: (r) => html`<div className="row" style=${{ gap: 4, flexWrap: 'nowrap' }}><button className="btn ghost sm" onClick=${() => openDoc(Docs.payment(s, r))}>سند صرف</button>${can('edit') ? html`<button className="btn ghost sm" aria-label=${'إلغاء ' + r.no + ' بقيد عكسي'} onClick=${() => { onClose(); openModal('reverse', { coll: 'payments', id: r.id }); }}>إلغاء السداد</button>` : null}</div>` }]} /></div>
+    ${can('edit') && e.status === 'approved' ? html`<${Callout} kind="info">لتصحيح فاتورة عليها سداد خاطئ: ألغِ سند الصرف بقيد عكسي، فيعود المبلغ إلى الحساب وتعود الفاتورة مستحقة للمورد. بعدها يمكن تسجيل السداد الصحيح${c.payments.length === 1 ? '، أو إلغاء الفاتورة نفسها' : '، أو إلغاء الفاتورة بعد إلغاء كل مدفوعاتها'}.<//>` : null}` : null}
     <${JournalAdv} match=${(j) => j.src && ((j.src.coll === 'expenses' && j.src.id === e.id) || (j.src.coll === 'payments' && payIds.includes(j.src.id)))} sub="عند الاعتماد: يُثبت المصروف (أو الأصل الرأسمالي) وضريبة المدخلات والالتزام للمورد أو للشريك. عند السداد: يُخفَّض الالتزام والنقدية فقط — لا يُثبت المصروف مرة ثانية." />
   <//>`;
 }
