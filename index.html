@@ -3693,6 +3693,7 @@ document.documentElement.setAttribute('dir','rtl');document.documentElement.setA
   };
   /* ---------- هوية القالب: ورقة مخفية _GRIDX ---------- */
   const META = '_GRIDX';
+  const NOT_TEMPLATE = 'لإضافة عمليات جديدة: «تنزيل القالب» ثم عبّئه وارفعه. لتعديل سجلات موجودة: «ملف بيانات للتبادل» ← «تصدير Excel بالبيانات الحالية» ثم ارفع الملف نفسه بعد تعديله.';
   const metaChk = (m) => X.sha256('GRIDX|' + m.kind + '|' + m.tid + '|' + (m.techId || '') + '|' + (m.partnerId || '')).slice(0, 12);
   function metaRows(m) { const o = Object.assign({}, m); o.chk = metaChk(o); return Object.keys(o).map((k) => [k, o[k] == null ? '' : String(o[k])]); }
   function readMeta(wb) {
@@ -3928,12 +3929,14 @@ document.documentElement.setAttribute('dir','rtl');document.documentElement.setA
     const stop = (msg) => ({ state: G.clone(state), results: [], summary: [], warnings: [], fatal: msg, okCount: 0, errCount: 0, dupCount: 0, conflictCount: 0, onlyErr: 0, kind: meta.kind, meta });
     if (meta.bad) return stop('بيانات تعريف القالب (الورقة المخفية «' + META + '») عُدّلت أو تلفت، فلا يمكن التأكد من نوع القالب أو صاحبه. نزّل قالباً جديداً من المنصة.');
     if (meta.kind === 'partner') return stop('هذا ملف كشف حساب شريك للقراءة فقط؛ لا يُستورد منه أي تعديل مالي.');
+    if (meta.kind === 'report') return stop('هذا ملف تقرير صُدّر من المنصة للقراءة والطباعة («' + (meta.title || 'تقرير') + '»)، ولا يُستورد. ' + NOT_TEMPLATE);
     const K = KINDS[meta.kind];
     if (!K || K.exportOnly) return stop('نوع قالب غير معروف: ' + meta.kind);
     const ex = { batchId: ctx.batchId, file: ctx.file, ts: ctx.ts, tid: meta.tid || '' };
     if (meta.kind === 'technician') { ex.tech = state.technicians.find((x) => x.id === meta.techId); if (!ex.tech) return stop('الفني صاحب القالب (' + (meta.techName || meta.techId) + ') غير موجود في المنصة.'); }
     const DEFS = K.defs;
     const parsed = parse(wb, DEFS);
+    if (meta.legacy && !DEFS.some((d) => parsed.sheets[d.key] && parsed.sheets[d.key].present)) return stop('هذا الملف ليس قالب إدخال من GRID X: لا يحتوي أي ورقة من أوراق القالب' + (parsed.unknownSheets.length ? ' (أوراقه: ' + parsed.unknownSheets.join('، ') + ')' : '') + '. إن كان تقريراً مُصدَّراً من المنصة فهو للقراءة فقط. ' + NOT_TEMPLATE);
     let s = G.clone(state);
     const results = [];
     const push = (key, row, r, kind) => results.push({ sheet: key, sheetName: BY_KEY[key].name, n: row.n, label: label(key, row.rec), ref: row.rec.opRef || '', kind: kind || (r.ok ? 'ok' : 'err'), ok: !!r.ok && (!kind || kind === 'ok'), error: r.ok && (!kind || kind === 'ok') ? '' : r.error });
@@ -4127,7 +4130,7 @@ document.documentElement.setAttribute('dir','rtl');document.documentElement.setA
     };
   }
 
-  const api = { SHEETS, TECH_SHEETS, MGMT_SHEETS, KINDS, META, parse, dryRun, templateSpec, partnerExport, readMeta, emptyState, toDate, toNum, REF_ROWS };
+  const api = { SHEETS, TECH_SHEETS, MGMT_SHEETS, KINDS, META, parse, dryRun, templateSpec, partnerExport, readMeta, metaRows, emptyState, toDate, toNum, REF_ROWS, NOT_TEMPLATE };
   if (typeof module !== 'undefined' && module.exports) module.exports = api; else root.GXImport = api;
 })(typeof window !== 'undefined' ? window : globalThis);
 /* ============================================================
@@ -5221,7 +5224,7 @@ async function saveFile(filename, data, toast) {
   if (!_dl) {
     // بديل خارج بيئة Claude: تنزيل عادي من المتصفح
     try {
-      const type = /\.csv$/i.test(filename) ? 'text/csv;charset=utf-8' : /\.json$/i.test(filename) ? 'application/json' : /\.html?$/i.test(filename) ? 'text/html;charset=utf-8' : 'application/octet-stream';
+      const type = /\.csv$/i.test(filename) ? 'text/csv;charset=utf-8' : /\.json$/i.test(filename) ? 'application/json' : /\.html?$/i.test(filename) ? 'text/html;charset=utf-8' : /\.xlsx$/i.test(filename) ? 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' : 'application/octet-stream';
       const url = URL.createObjectURL(new Blob([data], { type }));
       const a = document.createElement('a'); a.href = url; a.download = filename; a.style.display = 'none';
       document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 1500);
@@ -7813,6 +7816,28 @@ function reportDoc(s, title, key, from, to, pid, r, rows, totals, desc) {
   return { title, no: 'RPT-' + key.toUpperCase(), date: today(), rows: [['الوصف', desc], ['الفترة', NO_PERIOD.includes(key) ? 'الأرصدة القائمة حتى ' + to : from + ' إلى ' + to]].concat(key === 'statement' ? [['الشريك', pName(s, pid)]] : []).concat(r.extra ? r.extra.map((e) => [e[0], 'افتتاحي ' + money(e[1]) + ' | زيادة ' + money(e[2]) + ' | نقص ' + money(e[3]) + ' | ختامي ' + money(e[4])]) : []),
     lineHead: r.head, lines: (totals ? rows.concat([totals.map((t, i) => i === 0 ? 'الإجمالي' : t == null ? '' : t)]) : rows).map((row) => row.map((c) => typeof c === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(c) ? sd(c) : c)), notes: r.note };
 }
+// تصدير التقرير إلى Excel منسّق: من اليمين لليسار، عرض أعمدة مناسب، أرقام بفاصل الآلاف وخانتين، صف إجمالي، وتصفية على العناوين.
+// الورقة المخفية _GRIDX تعرّف الملف «تقريراً للقراءة» فترفضه صفحة الاستيراد برسالة واضحة بدل معاينة فارغة.
+function buildReportXlsx(title, period, head, rows, totals, note) {
+  const X = window.XLSX;
+  const info = [[title], ['الفترة: ' + period], ['صدر في ' + today() + ' — ملف تقرير للقراءة والطباعة، لا يُستورد إلى المنصة']];
+  const body = rows.concat(totals ? [totals.map((t, i) => (i === 0 ? 'الإجمالي' : t == null ? '' : t))] : []);
+  const aoa = info.concat([[]], [head], body, note ? [[], [note]] : []);
+  const ws = X.utils.aoa_to_sheet(aoa);
+  const h0 = info.length + 1;
+  const len = (v) => (v == null ? 0 : typeof v === 'number' ? v.toFixed(2).length + Math.floor(Math.abs(v)).toString().length / 3 : String(v).length);
+  ws['!cols'] = head.map((h, c) => ({ wch: Math.min(48, Math.max(10, len(h) + 2, ...body.map((r) => len(r[c]) + 2))) }));
+  body.forEach((r, ri) => r.forEach((v, c) => { if (typeof v === 'number') { const a = X.utils.encode_cell({ r: h0 + 1 + ri, c }); if (ws[a]) ws[a].z = '#,##0.00'; } }));
+  const last = Math.max(0, head.length - 1);
+  ws['!merges'] = info.map((_, r) => ({ s: { r, c: 0 }, e: { r, c: last } })).concat(note ? [{ s: { r: aoa.length - 1, c: 0 }, e: { r: aoa.length - 1, c: last } }] : []);
+  if (rows.length) ws['!autofilter'] = { ref: X.utils.encode_range({ s: { r: h0, c: 0 }, e: { r: h0 + rows.length, c: last } }) };
+  const wb = X.utils.book_new(); wb.Workbook = { Views: [{ RTL: true }] };
+  X.utils.book_append_sheet(wb, ws, String(title).replace(/[\\/?*\[\]:]/g, ' ').slice(0, 31));
+  const meta = window.GXImport.metaRows({ kind: 'report', tid: 'RPT' + Date.now().toString(36).toUpperCase(), title });
+  X.utils.book_append_sheet(wb, X.utils.aoa_to_sheet(meta), window.GXImport.META);
+  wb.Workbook.Sheets = wb.SheetNames.map((n) => ({ name: n, Hidden: n === window.GXImport.META ? 1 : 0 }));
+  return X.write(wb, { bookType: 'xlsx', type: 'array' });
+}
 function ReportView({ rkey, onBack }) {
   const { state: s, toast, openDoc, openModal, go } = useApp();
   const meta = REPORT_META.find((x) => x[0] === rkey);
@@ -7828,7 +7853,14 @@ function ReportView({ rkey, onBack }) {
   const totals = r.total ? r.head.map((_, i) => r.total.includes(i) ? G.sum(rows, (row) => typeof row[i] === 'number' ? row[i] : 0) : null) : null;
   const csvRows = rows.map((row) => row.map((c) => typeof c === 'number' ? c.toFixed(2) : c));
   const csv = toCSV(r.head, totals ? csvRows.concat([totals.map((t, i) => i === 0 ? 'الإجمالي' : t == null ? '' : t.toFixed(2))]) : csvRows);
-  const fname = 'gridx-' + rkey + '-' + to + '.csv';
+  const period = NO_PERIOD.includes(rkey) ? 'الأرصدة القائمة حتى ' + to : from + ' إلى ' + to;
+  const exportXlsx = () => {
+    if (!window.XLSX) return toast('err', 'مكتبة Excel لم تُحمَّل. تحقق من الاتصال ثم أعد تحميل الصفحة، أو استخدم «نسخ كـ CSV».');
+    try {
+      const title = meta[1] + (rkey === 'statement' ? ' — ' + pName(s, pid) : '');
+      saveFile('تقرير-' + meta[1].replace(/\s+/g, '-') + '-' + to + '.xlsx', buildReportXlsx(title, period, r.head, rows, totals, r.note), toast);
+    } catch (e) { toast('err', 'تعذّر إنشاء ملف Excel: ' + e.message); }
+  };
   const active = !!(q || fcols.some((i) => fv[i]));
   const numCell = (x, i) => html`<button type="button" className="num-link" onClick=${(e) => { e.stopPropagation(); setCell({ row: x.row, i }); }} title="عرض التفاصيل"><${M} v=${x.row[i]} cls=${x.row[i] < 0 ? 'neg' : ''} /></button>`;
   const link = cell ? (rkey === 'summary' ? (SUMMARY_SRC[cell.row[0]] ? ['src', SUMMARY_SRC[cell.row[0]]] : null) : reportLink(s, rkey, cell.row, pid)) : null;
@@ -7843,7 +7875,7 @@ function ReportView({ rkey, onBack }) {
     </div>
     <div className="filters rep-actions" style=${{ justifyContent: 'flex-start' }}>
       <button className="btn sm" onClick=${() => openDoc(reportDoc(s, meta[1], rkey, from, to, pid, r, rows, totals, meta[3]))}><${Icon} n="doc" s=${15} />طباعة</button>
-      <button className="btn sm" onClick=${() => saveFile(fname, csv, toast)}><${Icon} n="download" s=${15} />تصدير CSV</button>
+      <button className="btn sm" onClick=${exportXlsx}><${Icon} n="download" s=${15} />تصدير Excel</button>
       <button className="btn ghost sm" onClick=${() => copyText(csv.replace(/^﻿/, ''), toast)}><${Icon} n="copy" s=${15} />نسخ كـ CSV</button>
       <span className="small muted"><span className="num">${rows.length}</span> سطر${rows.length !== r.rows.length ? ' من ' + r.rows.length : ''}</span>
     </div>
